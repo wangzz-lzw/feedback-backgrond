@@ -4,7 +4,10 @@ import {
   Column,
   UpdateDateColumn,
   CreateDateColumn,
+  ManyToMany,
 } from 'typeorm';
+import { User } from './user.entity';
+
 @Entity()
 export class Task {
   @PrimaryGeneratedColumn() // ✅ 将 `taskId` 作为自增主键
@@ -27,4 +30,14 @@ export class Task {
 
   @Column({ type: 'int', nullable: true })
   modifyUserId: number;
+
+  @Column({
+    type: 'enum',
+    enum: ['pending', 'in_progress', 'completed'],
+    default: 'pending',
+  })
+  status: string;
+  // 多对多关联角色
+  @ManyToMany(() => User, (user) => user.tasks)
+  users: User[];
 }

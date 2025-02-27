@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { Task } from 'src/task/entities/task.entity';
+import * as entities from '../entities/index';
 export const database = new DataSource({
   type: 'mysql',
   host: 'localhost',
@@ -9,7 +9,7 @@ export const database = new DataSource({
   database: 'nest_demo',
   synchronize: true,
   logging: true,
-  entities: [Task],
+  entities: Object.values(entities),
   subscribers: [],
   migrations: [],
 });
