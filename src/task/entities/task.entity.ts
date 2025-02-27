@@ -2,30 +2,28 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   UpdateDateColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
 @Entity()
 export class Task {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn() // ✅ 将 `taskId` 作为自增主键
+  taskId: number;
 
   @Column()
   taskName: string;
+
+  @Column()
+  taskContent: string;
+
+  @Column()
+  taskSubTitle: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createTime: string;
 
   @UpdateDateColumn({ type: 'timestamp' })
   modifyTime: string;
-
-  @ManyToOne(() => User, (user) => user.tasks, {
-    nullable: true,
-    eager: false,
-  })
-  modifyUser: User;
 
   @Column({ type: 'int', nullable: true })
   modifyUserId: number;
