@@ -55,22 +55,34 @@ export class TaskService {
 
       if (!destinationTask) {
         // 如果目标任务不存在，则将源任务移动到目标位置并更新状态
-        sourceTask.status = updateTaskDto.destination.droppableId;
-        sourceTask.index = updateTaskDto.destination.index;
+        await taskRepository.update(
+          { taskId: sourceTask.taskId },
+          {
+            status: updateTaskDto.destination.droppableId,
+            index: updateTaskDto.destination.index,
+          },
+        );
       } else {
         // 如果目标任务存在，则交换位置并更新状态
         const tempStatus = sourceTask.status;
         const tempIndex = sourceTask.index;
 
-        sourceTask.status = destinationTask.status;
-        sourceTask.index = destinationTask.index;
+        await taskRepository.update(
+          { taskId: sourceTask.taskId },
+          {
+            status: destinationTask.status,
+            index: destinationTask.index,
+          },
+        );
 
-        destinationTask.status = tempStatus;
-        destinationTask.index = tempIndex;
+        await taskRepository.update(
+          { taskId: destinationTask.taskId },
+          {
+            status: tempStatus,
+            index: tempIndex,
+          },
+        );
       }
-
-      // 保存更新后的任务
-      await taskRepository.save([sourceTask, destinationTask]);
 
       return Result.success({ sourceTask, destinationTask });
     } catch (error) {
