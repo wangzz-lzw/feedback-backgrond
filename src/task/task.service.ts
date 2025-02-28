@@ -4,14 +4,17 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from '../entities';
 import Result from 'src/interceptor/result.interceptor';
 import { database } from '../db/index';
-const task = new Task();
 @Injectable()
 export class TaskService {
-  create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto) {
     try {
-      Object.assign(task, createTaskDto);
       const appData = database.getRepository(Task);
-      appData.save(task);
+      const taskList = await appData.find();
+      const ids = taskList
+        .filter((item) => item.status === createTaskDto.status)
+        .map((item) => item.index);
+      const index = ids.length ? Math.max(...ids) + 1 : 0;
+      await appData.save({ ...createTaskDto, index });
       return Result.success({});
     } catch (error) {
       return Result.fail(error);
@@ -20,16 +23,59 @@ export class TaskService {
 
   async findAll() {
     const result = await database.getRepository(Task).find();
-    console.log(result, 'result');
     return Result.success(result);
   }
 
   findOne(id: number) {
     return `This action returns a #${id} task`;
   }
+  async update(updateTaskDto: UpdateTaskDto) {
+    try {
+      const taskRepository = database.getRepository(Task);
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+      // 获取源任务
+      const sourceTask = await taskRepository.findOne({
+        where: {
+          status: updateTaskDto.source.droppableId,
+          index: updateTaskDto.source.index,
+        },
+      });
+
+      if (!sourceTask) {
+        return Result.fail('Source task not found');
+      }
+
+      // 获取目标任务
+      const destinationTask = await taskRepository.findOne({
+        where: {
+          status: updateTaskDto.destination.droppableId,
+          index: updateTaskDto.destination.index,
+        },
+      });
+
+      if (!destinationTask) {
+        // 如果目标任务不存在，则将源任务移动到目标位置并更新状态
+        sourceTask.status = updateTaskDto.destination.droppableId;
+        sourceTask.index = updateTaskDto.destination.index;
+      } else {
+        // 如果目标任务存在，则交换位置并更新状态
+        const tempStatus = sourceTask.status;
+        const tempIndex = sourceTask.index;
+
+        sourceTask.status = destinationTask.status;
+        sourceTask.index = destinationTask.index;
+
+        destinationTask.status = tempStatus;
+        destinationTask.index = tempIndex;
+      }
+
+      // 保存更新后的任务
+      await taskRepository.save([sourceTask, destinationTask]);
+
+      return Result.success({ sourceTask, destinationTask });
+    } catch (error) {
+      return Result.fail(error);
+    }
   }
 
   remove(id: number) {

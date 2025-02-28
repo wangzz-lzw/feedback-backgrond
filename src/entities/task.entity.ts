@@ -37,6 +37,9 @@ export class Task {
     default: 'pending',
   })
   status: string;
+
+  @Column()
+  index: number;
   // 多对多关联角色
   @ManyToMany(() => User, (user) => user.tasks)
   users: User[];
