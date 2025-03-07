@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import 'reflect-metadata';
 import { createConnectDataBase } from './db';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -11,8 +12,24 @@ async function bootstrap() {
     credentials: true, // 允许携带 Cookie
   });
   const database = await createConnectDataBase();
+  const config = new DocumentBuilder()
+    .setTitle('名称')
+    .setDescription(
+      '描述：<a href="http://localhost:3000/api-json">默认 json 链接</a>',
+    )
+    .setVersion('1.0.1')
+    .setOpenAPIVersion('3.1.0')
+    // 添加标签
+    .addTag('users')
+    .addTag('app')
+    // 添加授权
+    .addBearerAuth()
+    .build();
+  // 创建文档
+  const document = SwaggerModule.createDocument(app, config);
+  // 设置文档路径 为 api
+  SwaggerModule.setup('api', app, document);
 
-  console.log(database, 'database');
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

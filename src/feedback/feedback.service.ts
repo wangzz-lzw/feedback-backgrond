@@ -3,6 +3,8 @@ import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import * as Mock from 'mockjs';
 import Result from 'src/interceptor/result.interceptor';
+import { Feedback } from 'src/entities';
+import { database } from '../db';
 
 @Injectable()
 export class FeedbackService {
@@ -18,8 +20,10 @@ export class FeedbackService {
       },
     ],
   });
-  create(createFeedbackDto: CreateFeedbackDto) {
-    return 'This action adds a new feedback';
+  async create(createFeedbackDto: CreateFeedbackDto) {
+    const appData = database.getRepository(Feedback);
+    appData.save(createFeedbackDto);
+    return Result.success({});
   }
 
   findAll(type: number) {

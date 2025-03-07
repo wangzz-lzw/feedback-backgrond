@@ -5,9 +5,16 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { TaskModule } from './task/task.module';
 import { LoginModule } from './login/login.module';
 import { UsersModule } from './users/users.module';
+import { RegistryModule } from './registry/registry.module';
 
 @Module({
-  imports: [FeedbackModule, TaskModule, LoginModule, UsersModule],
+  imports: [
+    FeedbackModule,
+    TaskModule,
+    LoginModule,
+    RegistryModule,
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

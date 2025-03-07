@@ -8,7 +8,7 @@ export const database = new DataSource({
   password: '123456',
   database: 'nest_demo',
   synchronize: true,
-  logging: true,
+  logging: false,
   entities: Object.values(entities),
   subscribers: [],
   migrations: [],

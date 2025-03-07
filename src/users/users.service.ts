@@ -1,26 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { User } from '../entities';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-
+import { database } from '../db';
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor() {}
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const appData = database.getRepository(User);
+    const user = appData.create(createUserDto);
+    return await appData.save(user);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(): Promise<User[]> {
+    const appData = database.getRepository(User);
+    return await appData.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number): Promise<User> {
+    const appData = database.getRepository(User);
+    const user = await appData.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
+  }
+  async findOneByName(name: string, flag: boolean = false): Promise<User> {
+    const appData = database.getRepository(User);
+    const user = await appData.findOneBy({ username: name });
+    if (!user && !flag) {
+      throw new NotFoundException(`User with name ${name} not found`);
+    }
+    return user;
+  }
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const appData = database.getRepository(User);
+    const user = await this.findOne(id); // 复用查找逻辑
+    appData.merge(user, updateUserDto);
+    return await appData.save(user);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number): Promise<void> {
+    const appData = database.getRepository(User);
+    const result = await appData.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 }
