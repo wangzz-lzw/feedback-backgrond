@@ -11,17 +11,20 @@ import {
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
+import { Public } from '../decorators/public.decorator';
 
 @Controller('feedback')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
+  @Public()
   create(@Body() createFeedbackDto: CreateFeedbackDto) {
     return this.feedbackService.create(createFeedbackDto);
   }
 
   @Get()
+  @Public()
   findAll(@Query('type') type: number) {
     return this.feedbackService.findAll(type);
   }
