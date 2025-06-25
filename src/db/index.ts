@@ -2,11 +2,11 @@ import { DataSource } from 'typeorm';
 import * as entities from '../entities/index';
 export const database = new DataSource({
   type: 'mysql',
-  host: 'localhost',
+  host: process.env.DB_HOST,
   port: 3306,
-  username: 'self',
+  username: 'root',
   password: '123456',
-  database: 'nest_demo',
+  database: 'feedback',
   synchronize: true,
   logging: false,
   entities: Object.values(entities),

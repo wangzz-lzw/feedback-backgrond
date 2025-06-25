@@ -3,6 +3,9 @@ import { AppModule } from './app.module';
 import 'reflect-metadata';
 import { createConnectDataBase } from './db';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { config } from 'dotenv';
+config();
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -11,7 +14,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization', // 允许的请求头
     credentials: true, // 允许携带 Cookie
   });
-  const database = await createConnectDataBase();
+  await createConnectDataBase();
   const config = new DocumentBuilder()
     .setTitle('名称')
     .setDescription(
